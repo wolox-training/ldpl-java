@@ -2,12 +2,18 @@ package wolox.training.models;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Book {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(nullable = false)
     private String isbn;
 
     @Column(nullable = false)
@@ -34,9 +40,24 @@ public class Book {
     @Column(nullable = false)
     private String year;
 
-
     public Book() {
         // Added to use with JPA;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 
     public String getAuthor() {
@@ -61,14 +82,6 @@ public class Book {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
     }
 
     public Integer getPages() {
