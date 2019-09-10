@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Book {
@@ -14,30 +17,39 @@ public class Book {
     private Long id;
 
     @Column(nullable = false)
+    @NotEmpty(message = "ISBN is required")
     private String isbn;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Author is required")
     private String author;
 
     @Column
     private String genre;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Image is required")
     private String image;
 
     @Column(nullable = false)
+    @Min(1)
+    @NotNull
     private Integer pages;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Publisher is required")
     private String publisher;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Subtitle is required")
     private String subtitle;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Title is required")
     private String title;
 
     @Column(nullable = false)
+    @NotEmpty
     private String year;
 
     public Book() {
