@@ -1,5 +1,7 @@
 package wolox.training.models;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
+@ApiModel(description = "User model")
 @Entity(name = "users")
 public class User {
 
@@ -25,14 +28,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @ApiModelProperty(value = "Username of user", dataType = "String", example = "juanes")
     @Column(nullable = false)
     @NotEmpty(message = "Username is required")
     private String username;
 
+    @ApiModelProperty(value = "Full name of the user", dataType = "String", example = "Juan Esteban Ximenez")
     @Column(nullable = false)
     @NotEmpty(message = "Name is required")
     private String name;
 
+    @ApiModelProperty(value = "User's birth date", dataType = "String", example = "1992-11-26")
     @Column(nullable = false)
     @NotNull(message = "Birth date is required")
     private LocalDate birthDate;

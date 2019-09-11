@@ -1,5 +1,11 @@
 package wolox.training.controllers;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +27,7 @@ import wolox.training.models.User;
 import wolox.training.repositories.BookRepository;
 import wolox.training.repositories.UserRepository;
 
+@Api(value = "CRUD User")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -42,8 +49,16 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @ApiOperation(value = "Find an user by id", response = User.class, authorizations = {
+        @Authorization("none")})
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, response = User.class, message = "Successfully retrieved user"),
+        @ApiResponse(code = 404, response = String.class, message = "User not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @GetMapping("/{id}")
-    public User findOne(@PathVariable(name = "id") Long id) {
+    public User findOne(
+        @ApiParam(required = true, value = "User's id") @PathVariable(name = "id") Long id) {
         return userRepository
             .findById(id)
             .orElseThrow(UserNotFoundException::new);
