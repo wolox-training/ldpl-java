@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
@@ -32,10 +31,6 @@ public class User {
 
     @Column(nullable = false)
     private LocalDate birthDate;
-
-    @OneToOne
-    @JoinColumn(name = "book_id")
-    private Book myBook;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -71,14 +66,6 @@ public class User {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
-    }
-
-    public Book getMyBook() {
-        return myBook;
-    }
-
-    public void setMyBook(Book myBook) {
-        this.myBook = myBook;
     }
 
     public List<Book> getBooks() {
