@@ -1,13 +1,11 @@
 package wolox.training.models;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -54,9 +52,6 @@ public class Book {
     @Column(nullable = false)
     @NotEmpty
     private String year;
-
-    @ManyToMany(mappedBy = "books")
-    private List<User> users;
 
     public Book() {
         // Added to use with JPA;
@@ -138,11 +133,14 @@ public class Book {
         this.year = year;
     }
 
-    public List<User> getUsers() {
-        return Collections.unmodifiableList(users);
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Book) && this.getId().equals(((Book) obj).getId());
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(id, isbn, author, genre, image, pages, publisher, subtitle, title, year);
     }
 }

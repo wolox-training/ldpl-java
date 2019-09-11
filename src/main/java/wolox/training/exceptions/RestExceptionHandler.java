@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({BookNotFoundException.class})
+    @ExceptionHandler({BookNotFoundException.class, UserNotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "Entity not found", new HttpHeaders(),
             HttpStatus.NOT_FOUND,
