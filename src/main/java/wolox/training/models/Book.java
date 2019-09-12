@@ -139,7 +139,7 @@ public class Book {
     }
 
     public void setTitle(String title) {
-        Preconditions.checkNotNull(subtitle, "Title can't be null");
+        Preconditions.checkNotNull(title, "Title can't be null");
         this.title = title;
     }
 
