@@ -32,7 +32,7 @@ public class User {
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
     @JoinTable(
         name = "book_user",
         joinColumns = @JoinColumn(name = "user_id"),
