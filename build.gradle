@@ -33,5 +33,8 @@ dependencies {
     implementation(group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2')
     implementation(group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '1.2.0.RELEASE')
 
+    // Guava
+    implementation 'com.google.guava:guava:27.0-jre'
+
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
 }
