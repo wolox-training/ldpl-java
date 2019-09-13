@@ -1,5 +1,11 @@
 package wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,6 +48,9 @@ public class User {
     @ApiModelProperty(value = "User's birth date", dataType = "String", example = "1992-11-26")
     @Column(nullable = false)
     @NotNull(message = "Birth date is required")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
     private LocalDate birthDate;
 
     @ManyToMany(cascade = CascadeType.ALL)
