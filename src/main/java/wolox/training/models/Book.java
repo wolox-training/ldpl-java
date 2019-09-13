@@ -1,7 +1,7 @@
 package wolox.training.models;
 
-import com.google.common.base.Preconditions;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -68,6 +68,10 @@ public class Book {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getIsbn() {

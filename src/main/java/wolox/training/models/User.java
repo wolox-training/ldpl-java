@@ -65,6 +65,11 @@ public class User {
         return id;
     }
 
+    public void setId(Long id) {
+        // TODO check better alternative to perform tests;
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
     }
