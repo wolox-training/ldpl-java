@@ -1,7 +1,7 @@
 package wolox.training.models;
 
-import com.google.common.base.Preconditions;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -93,7 +93,6 @@ public class Book {
     }
 
     public void setGenre(String genre) {
-        Preconditions.checkNotNull(genre, "Genre can't be null");
         this.genre = genre;
     }
 
@@ -149,7 +148,8 @@ public class Book {
 
     public void setYear(String year) {
         Preconditions
-            .checkArgument(year != null && year.length() == 4 && Integer.parseInt(year) > 0, "I");
+            .checkArgument(year != null && year.length() == 4 && Integer.parseInt(year) > 0,
+                "Type a valid year, i.e 1992");
         this.year = year;
     }
 

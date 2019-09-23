@@ -61,7 +61,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        Preconditions.checkNotNull(username, "Username can't be null --->");
+        Preconditions.checkNotNull(username, "Username can't be null");
         this.username = username;
     }
 
