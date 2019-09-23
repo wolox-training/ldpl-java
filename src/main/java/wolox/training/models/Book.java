@@ -2,6 +2,7 @@ package wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -60,7 +61,7 @@ public class Book {
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     @JsonBackReference
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     public Book() {
         // Added to use with JPA;
@@ -97,7 +98,6 @@ public class Book {
     }
 
     public void setGenre(String genre) {
-        Preconditions.checkNotNull(genre, "Genre can't be null");
         this.genre = genre;
     }
 
@@ -168,7 +168,8 @@ public class Book {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof Book) && this.getId().equals(((Book) obj).getId());
+        return (obj instanceof Book) && this.getId() != null && this.getId()
+            .equals(((Book) obj).getId());
     }
 
     @Override

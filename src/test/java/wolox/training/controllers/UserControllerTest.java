@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,16 +64,10 @@ public class UserControllerTest {
         testUserWithId.setName("another name");
         testUserWithId.setBirthDate(LocalDate.now().minusYears(1));
 
-        testBook = new Book();
+        testBook = TestUtils
+            .createBookWithData("an-isbn", "an author", "some image", 100, "a publisher",
+                " a title", "a subtitle", 2019);
         testBook.setId(1L);
-        testBook.setIsbn("an-isbn");
-        testBook.setYear("2019");
-        testBook.setAuthor("an author");
-        testBook.setGenre("a genre");
-        testBook.setImage("some image");
-        testBook.setPages(100);
-        testBook.setPublisher("a publisher");
-        testBook.setTitle("a title");
     }
 
     @Test
@@ -86,8 +81,6 @@ public class UserControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .content(TestUtils.toStringJson(testUser)))
             .andExpect(status().isCreated());
-
-        // TODO, how we can check the response has some attributes, the .property & $.property seems not working
     }
 
     @Test
@@ -217,6 +210,30 @@ public class UserControllerTest {
     }
 
     @Test
+    public void givenNonExistingBook_whenAddBookIsCalled_then404MustBeReturned() throws Exception {
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.of(testUserWithId));
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.empty());
+
+        mockMvc.perform(put(baseUrl + testUserWithId.getId() + "/books/" + 1))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void givenNonExistingUser_whenAddBookIsCalled_then404MustBeReturned() throws Exception {
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.empty());
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.of(testBook));
+
+        mockMvc.perform(put(baseUrl + testUserWithId.getId() + "/books/" + 1))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void givenABook_thenAddIdToUserCollection() throws Exception {
         when(userRepository.findById(1L))
             .thenReturn(Optional.of(testUserWithId));
@@ -230,5 +247,65 @@ public class UserControllerTest {
             .andExpect(status().isOk());
     }
 
+    @Test
+    public void givenABookInUserList_whenAddBookIsCalled_thenReturnConflict() throws Exception {
+        User user = TestUtils.cloneUser(testUserWithId);
+        user.setBooks(Collections.singletonList(testBook));
 
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.of(user));
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.of(testBook));
+
+        mockMvc.perform(put(baseUrl + user.getId() + "/books/" + testBook.getId()))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void givenNonExistingBook_whenRemoveBookIsCalled_thenReturn404() throws Exception {
+        User user = TestUtils.cloneUser(testUserWithId);
+        user.setBooks(Collections.singletonList(testBook));
+
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.of(user));
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.empty());
+
+        mockMvc.perform(delete(baseUrl + user.getId() + "/books/" + testBook.getId()))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void givenBookInUserList_whenRemoveBookIsCalled_thenRemoveIt() throws Exception {
+        User user = TestUtils.cloneUser(testUserWithId);
+        List<Book> books = new ArrayList<>();
+        books.add(testBook);
+        user.setBooks(books);
+
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.of(user));
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.of(testBook));
+
+        mockMvc.perform(delete(baseUrl + user.getId() + "/books/" + testBook.getId()))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void givenABookNotInUserCollection_whenRemoveBookIsCalled_thenReturn404()
+        throws Exception {
+        User user = TestUtils.cloneUser(testUserWithId);
+
+        when(userRepository.findById(1L))
+            .thenReturn(Optional.of(user));
+
+        when(bookRepository.findById(1L))
+            .thenReturn(Optional.of(testBook));
+
+        mockMvc.perform(delete(baseUrl + user.getId() + "/books/" + testBook.getId()))
+            .andExpect(status().isNotFound());
+    }
 }
