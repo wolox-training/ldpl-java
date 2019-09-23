@@ -1,5 +1,6 @@
 package wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "book_id")
     )
+    @JsonManagedReference
     private List<Book> books = new ArrayList<>();
 
     public Long getId() {
