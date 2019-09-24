@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +27,11 @@ public class BookRepositoryTest {
 
     private Book testBook;
     private String bookAuthor = "Edgar Alan Poe";
+    private String isbn = "978-3-16-148410-0";
 
     private void persistBook() {
         testBook = TestUtils
-            .createBookWithData(null, "978-3-16-148410-0", bookAuthor, "http://my-image.net/book",
+            .createBookWithData(null, isbn, bookAuthor, "http://my-image.net/book",
                 33, "El planeta", "The raven", "Narrative Poem", 1845);
 
         TestUtils.persist(testEntityManager, testBook);
@@ -73,5 +75,18 @@ public class BookRepositoryTest {
         List<Book> bookList = bookRepository.findAll();
 
         Assertions.assertThat(bookList).isEmpty();
+    }
+
+    @Test
+    public void givenNoBooksInDB_whenFindByIsbnIsCalled_thenNoReturnBook() {
+        Optional<Book> foundBook = bookRepository.findByIsbn("an isbn");
+        Assertions.assertThat(foundBook.isPresent()).isFalse();
+    }
+
+    @Test
+    public void givenBooksInDB_whenFindByIsbnIsCalledWithValidValue_thenReturnMatchingBook() {
+        persistBook();
+        Optional<Book> foundBook = bookRepository.findByIsbn(isbn);
+        Assertions.assertThat(foundBook.isPresent()).isTrue();
     }
 }
