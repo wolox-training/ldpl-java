@@ -46,13 +46,12 @@ public class BookControllerTest {
     @Before
     public void setup() {
         testBook = TestUtils
-            .createBookWithData("an-isbn", "an author", "some image", 100, "a publisher",
+            .createBookWithData(null, "an-isbn", "an author", "some image", 100, "a publisher",
                 "a title", "a subtitle", 2019);
 
         testBookWithId = TestUtils
-            .createBookWithData("an-isbn", "an author", "some image", 100, "a publisher",
+            .createBookWithData(1L, "an-isbn", "an author", "some image", 100, "a publisher",
                 "a title", "a subtitle", 2019);
-        testBookWithId.setId(1L);
     }
 
     @Test

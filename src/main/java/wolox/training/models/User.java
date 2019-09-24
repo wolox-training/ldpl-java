@@ -61,13 +61,19 @@ public class User {
     )
     private List<Book> books = new ArrayList<>();
 
-    public Long getId() {
-        return id;
+    public User() {
+        // Added to use with JPA;
     }
 
-    public void setId(Long id) {
-        // TODO check better alternative to perform tests;
+    public User(Long id, String username, String name, LocalDate birthDate) {
         this.id = id;
+        setUsername(username);
+        setName(name);
+        setBirthDate(birthDate);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getUsername() {

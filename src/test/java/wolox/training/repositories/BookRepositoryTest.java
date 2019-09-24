@@ -29,8 +29,8 @@ public class BookRepositoryTest {
 
     private void persistBook() {
         testBook = TestUtils
-            .createBookWithData("978-3-16-148410-0", bookAuthor, "http://my-image.net/book", 33,
-                "El planeta", "The raven", "Narrative Poem", 1845);
+            .createBookWithData(null, "978-3-16-148410-0", bookAuthor, "http://my-image.net/book",
+                33, "El planeta", "The raven", "Narrative Poem", 1845);
 
         TestUtils.persist(testEntityManager, testBook);
     }

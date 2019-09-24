@@ -16,7 +16,7 @@ import wolox.training.models.User;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class UseRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
     private TestEntityManager testEntityManager;

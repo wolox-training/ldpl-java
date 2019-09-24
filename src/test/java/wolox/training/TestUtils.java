@@ -21,37 +21,19 @@ public class TestUtils {
         entityManager.flush();
     }
 
-    public static Book createBookWithData(String isbn, String bookAuthor, String image,
-        Integer pages, String publisher, String title, String subtitle, int year) {
-        Book book = new Book();
-        book.setIsbn(isbn);
-        book.setAuthor(bookAuthor);
-        book.setImage(image);
-        book.setPages(pages);
-        book.setPublisher(publisher);
-        book.setSubtitle(subtitle);
-        book.setTitle(title);
-        book.setYear(String.valueOf(year));
-        return book;
+    public static Book createBookWithData(@Nullable Long id, String isbn, String bookAuthor,
+        String image, int pages, String publisher, String title, String subtitle, int year) {
+        return new Book(id, isbn, bookAuthor, null, image, pages, publisher, subtitle, title,
+            String.valueOf(year));
     }
 
     public static User cloneUser(User oldUser) {
-        User user = new User();
-        user.setId(oldUser.getId());
-        user.setBirthDate(oldUser.getBirthDate());
-        user.setName(oldUser.getName());
-        user.setUsername(oldUser.getUsername());
-        return user;
+        return new User(oldUser.getId(), oldUser.getUsername(), oldUser.getName(),
+            oldUser.getBirthDate());
     }
 
     public static User createUserWithData(@Nullable Long id, @Nonnull String username,
         @Nonnull String name) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        user.setName(name);
-        user.setBirthDate(LocalDate.now().minusYears(1));
-
-        return user;
+        return new User(id, username, name, LocalDate.now().minusYears(1));
     }
 }

@@ -58,16 +58,11 @@ public class UserControllerTest {
         testUser.setName("my name");
         testUser.setBirthDate(LocalDate.now().minusDays(1));
 
-        testUserWithId = new User();
-        testUserWithId.setId(1L);
-        testUserWithId.setUsername("another username");
-        testUserWithId.setName("another name");
-        testUserWithId.setBirthDate(LocalDate.now().minusYears(1));
+        testUserWithId = TestUtils.createUserWithData(1L, "another username", "another name");
 
         testBook = TestUtils
-            .createBookWithData("an-isbn", "an author", "some image", 100, "a publisher",
+            .createBookWithData(1L, "an-isbn", "an author", "some image", 100, "a publisher",
                 " a title", "a subtitle", 2019);
-        testBook.setId(1L);
     }
 
     @Test

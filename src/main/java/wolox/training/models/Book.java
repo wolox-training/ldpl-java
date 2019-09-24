@@ -67,12 +67,22 @@ public class Book {
         // Added to use with JPA;
     }
 
-    public Long getId() {
-        return id;
+    public Book(Long id, String isbn, String author, String genre, String image, Integer pages,
+        String publisher, String subtitle, String title, String year) {
+        this.id = id;
+        setIsbn(isbn);
+        setAuthor(author);
+        setGenre(genre);
+        setImage(image);
+        setPages(pages);
+        setPublisher(publisher);
+        setSubtitle(subtitle);
+        setTitle(title);
+        setYear(year);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getId() {
+        return id;
     }
 
     public String getIsbn() {
