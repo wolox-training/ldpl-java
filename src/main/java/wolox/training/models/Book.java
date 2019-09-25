@@ -1,10 +1,14 @@
 package wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.Collections;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -51,6 +55,10 @@ public class Book {
     @Column(nullable = false)
     @NotEmpty
     private String year;
+
+    @ManyToMany(mappedBy = "books")
+    @JsonBackReference
+    private List<User> users;
 
     public Book() {
         // Added to use with JPA;
@@ -130,5 +138,13 @@ public class Book {
 
     public void setYear(String year) {
         this.year = year;
+    }
+
+    public List<User> getUsers() {
+        return Collections.unmodifiableList(users);
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }
