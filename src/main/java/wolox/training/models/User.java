@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
@@ -25,12 +27,15 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Username is required")
     private String username;
 
     @Column(nullable = false)
+    @NotEmpty(message = "Name is required")
     private String name;
 
     @Column(nullable = false)
+    @NotNull(message = "Birth date is required")
     private LocalDate birthDate;
 
     @ManyToMany(cascade = {CascadeType.MERGE})

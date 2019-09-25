@@ -3,8 +3,10 @@ package wolox.training.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -56,7 +58,7 @@ public class Book {
     @NotEmpty
     private String year;
 
-    @ManyToMany(mappedBy = "books")
+    @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     @JsonBackReference
     private List<User> users;
 
@@ -146,5 +148,16 @@ public class Book {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Book) && this.getId().equals(((Book) obj).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects
+            .hash(id, isbn, author, genre, image, pages, publisher, subtitle, title, year);
     }
 }
