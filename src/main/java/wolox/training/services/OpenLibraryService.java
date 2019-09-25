@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,11 +20,14 @@ import wolox.training.models.dtos.BookDto;
 @Service
 public class OpenLibraryService {
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Value("${open.library.url}")
     private String baseUrl;
 
     public BookDto bookInfo(String isbn) throws IOException, ParseBookException, RequestException {
-        ClientHttpResponse response = new RestTemplate()
+        ClientHttpResponse response = restTemplate
             .getRequestFactory()
             .createRequest(URI.create(baseUrl.replace("{isbn}", isbn)), HttpMethod.GET)
             .execute();
