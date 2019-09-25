@@ -1,5 +1,6 @@
 package wolox.training.services;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -13,16 +14,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
-import wolox.training.TestUtils;
 import wolox.training.config.SpringConfig;
 import wolox.training.exceptions.ParseBookException;
 import wolox.training.exceptions.RequestException;
+import wolox.training.models.dtos.BookDto;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = SpringConfig.class)
+@ContextConfiguration(classes = {SpringConfig.class, OpenLibraryService.class})
+@TestPropertySource("/application.properties")
 public class OpenLibraryServiceTest {
 
     @Autowired
@@ -64,13 +67,49 @@ public class OpenLibraryServiceTest {
             .andExpect(method(HttpMethod.GET))
             .andRespond(withStatus(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(TestUtils.toStringJson(bookResponse))
+                .body(bookResponse)
             );
 
-//        BookDto bookDto = openLibraryService.bookInfo(isbn);
-//        mockRestServiceServer.verify();
-//        assertThat(bookDto).isNotNull();
-//        assertThat(bookDto.getISBN()).isEqualTo(isbn);
+        BookDto bookDto = openLibraryService.bookInfo(isbn);
+        mockRestServiceServer.verify();
+        assertThat(bookDto).isNotNull();
+        assertThat(bookDto.getISBN()).isEqualTo(isbn);
+        assertThat(bookDto.getPublishers()).isNotEmpty();
+        assertThat(bookDto.getAuthors()).isNotEmpty();
+        assertThat(bookDto.getPages()).isEqualTo(159);
+        assertThat(bookDto.getPublishDate()).isEqualTo("1994");
     }
 
+    @Test(expected = RequestException.class)
+    public void givenAnIsbn_whenBookInfoIsCalledButServiceIsNoOk_thenThrowsRequestException()
+        throws ParseBookException, IOException, RequestException {
+        mockRestServiceServer
+            .expect(requestTo(openLibraryUrl.replace("{isbn}", isbn)))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withStatus(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+            );
+
+        openLibraryService.bookInfo(isbn);
+        mockRestServiceServer.verify();
+    }
+
+    @Test(expected = ParseBookException.class)
+    public void givenAnIsbn_whenBookInfoIsCalledButResponseIsNoComplete_thenThrowsParseBookException()
+        throws ParseBookException, IOException, RequestException {
+        mockRestServiceServer
+            .expect(requestTo(openLibraryUrl.replace("{isbn}", isbn)))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withStatus(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(
+                    "{\"ISBN:0385472579\": {\"bib_key\": \"ISBN:0385472579\", \"preview\": "
+                        + "\"noview\", \"thumbnail_url\": \"https://covers.openlibrary.org/b/id/240726-S.jpg\", "
+                        + "\"preview_url\": \"https://openlibrary.org/books/OL1397864M/Zen_speaks\", "
+                        + "\"info_url\": \"https://openlibrary.org/books/OL1397864M/Zen_speaks\"}}")
+            );
+
+        openLibraryService.bookInfo(isbn);
+        mockRestServiceServer.verify();
+    }
 }
