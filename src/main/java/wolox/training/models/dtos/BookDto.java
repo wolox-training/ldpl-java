@@ -1,5 +1,6 @@
 package wolox.training.models.dtos;
 
+import java.util.Collections;
 import java.util.List;
 
 public class BookDto {
@@ -53,7 +54,7 @@ public class BookDto {
     }
 
     public List<String> getPublishers() {
-        return publishers;
+        return Collections.unmodifiableList(publishers);
     }
 
     public void setPublishers(List<String> publishers) {
@@ -61,7 +62,7 @@ public class BookDto {
     }
 
     public String getPublishDate() {
-        return publishDate;
+        return (publishDate);
     }
 
     public void setPublishDate(String publishDate) {
@@ -77,7 +78,7 @@ public class BookDto {
     }
 
     public List<String> getAuthors() {
-        return authors;
+        return Collections.unmodifiableList(authors);
     }
 
     public void setAuthors(List<String> authors) {
