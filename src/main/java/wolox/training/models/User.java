@@ -2,6 +2,8 @@ package wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -24,6 +26,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
@@ -60,6 +64,10 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "book_id")
     )
     private List<Book> books = new ArrayList<>();
+
+    @ApiModelProperty(value = "User's password", dataType = "String")
+    @Column(nullable = false)
+    private String password;
 
     public User() {
         // Added to use with JPA;
@@ -129,5 +137,20 @@ public class User {
         }
 
         return books.remove(book);
+    }
+
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
+    @JsonProperty
+    public void setPassword(String password) {
+        Preconditions.checkNotNull(password, "Password can't be null");
+        this.password = passwordEncoder().encode(password);
+    }
+
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

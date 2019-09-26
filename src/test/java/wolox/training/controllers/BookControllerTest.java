@@ -24,9 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import wolox.training.TestUtils;
+import wolox.training.authentication.UserAndPasswordAuthenticationProvider;
 import wolox.training.exceptions.ParseBookException;
 import wolox.training.exceptions.RequestException;
 import wolox.training.models.Book;
@@ -46,6 +48,9 @@ public class BookControllerTest {
 
     @MockBean
     private OpenLibraryService openLibraryService;
+
+    @MockBean
+    private UserAndPasswordAuthenticationProvider userAndPasswordAuthenticationProvider;
 
     private String baseUrl = "/api/books/";
     private Book testBook;
@@ -87,6 +92,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenNoBooks_whenGetBooksIsCalled_thenReturnEmptyList() throws Exception {
         when(bookRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -97,6 +103,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenBooksExist_whenGetBooksIsCalled_thenReturnNonEmptyList() throws Exception {
         List<Book> books = Collections.singletonList(testBook);
 
@@ -121,6 +128,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenABook_whenGetBookByIdIsCalled_thenItMustBeReturned() throws Exception {
         when(bookRepository.findById(1L))
             .thenReturn(Optional.of(testBook));
@@ -143,6 +151,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenNonExistingBook_whenGetBookIsCalled_thenReturn404() throws Exception {
         Long id = 1L;
 
@@ -157,6 +166,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenNonExistingBook_whenDeleteIsCalled_thenDeletedMustReturn404()
         throws Exception {
         when(bookRepository.findById(1L))
@@ -170,6 +180,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenExistingBook_thenDeletedMustReturnOk() throws Exception {
         when(bookRepository.findById(1L))
             .thenReturn(Optional.of(testBook));
@@ -184,6 +195,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenAnIncorrectBookId_whenUpdateIsCalled_thenResponseMustBeBadRequest()
         throws Exception {
         mockMvc.perform(put(baseUrl + 1L)
@@ -193,6 +205,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenNonExistingBook_thenUpdateMustReturnNotFound() throws Exception {
         when(bookRepository.findById(testBookWithId.getId()))
             .thenReturn(Optional.empty());
@@ -205,6 +218,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenValidBookInput_whenUpdateIsCalled_thenUpdateBook() throws Exception {
         when(bookRepository.findById(testBookWithId.getId()))
             .thenReturn(Optional.of(testBookWithId));
@@ -220,6 +234,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenAIsbnInDB_whenFindByIsbnIsCalled_thenReturnSuccessfulResponse()
         throws Exception {
         String isbn = "an-isbn";
@@ -243,6 +258,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnNoInDB_whenFindByIsbnIsCalledAndServiceResponseIsNotOk_thenSendFailedDependencyResponse()
         throws Exception {
         String isbn = "an-isbn";
@@ -260,6 +276,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnNoInDB_whenFindByIsbnIsCalledAndServiceResponseIsOkButIncompleteJson_thenSendParseExceptionResponse()
         throws Exception {
         String isbn = "an-isbn";
@@ -277,6 +294,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnNoInDB_whenFindByIsbnIsCalledAndServiceResponseIsIOException_thenSendParseExceptionResponse()
         throws Exception {
         String isbn = "an-isbn";
@@ -294,6 +312,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnIsNotInDB_whenFindByIsbnIsCalledAndServiceResponseIsInvalid_thenFailToCreateBook()
         throws Exception {
         String isbn = "an-isbn";
@@ -310,6 +329,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnIsNotInDB_whenFindByIsbnIsCalledAndServiceResponseIsValid_thenCreateBook()
         throws Exception {
         String isbn = "an-isbn";
@@ -329,6 +349,7 @@ public class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "username")
     public void givenIsbnIsNotInDB_whenFindByIsbnIsCalledAndServiceResponseIsEmpty_thenSend404()
         throws Exception {
         String isbn = "an-isbn";
