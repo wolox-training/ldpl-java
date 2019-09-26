@@ -59,6 +59,7 @@ public class UserControllerTest {
     private UserAndPasswordAuthenticationProvider userAndPasswordAuthenticationProvider;
 
     private String baseUrl = "/api/users/";
+    private String selfUserUrl = baseUrl.concat("self");
     private User testUser;
     private User testUserWithId;
     private Book testBook;
@@ -430,5 +431,33 @@ public class UserControllerTest {
             .accept(MediaType.APPLICATION_JSON).characterEncoding(StandardCharsets.UTF_8.name())
             .content(TestUtils.toStringJson(body)))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void givenNoAuthenticatedUser_whenSelfEndpointIsCalled_thenReturn401() throws Exception {
+        mockMvc.perform(get(selfUserUrl)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.name()))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    public void givenAuthenticatedUser_whenSelfEndpointIsCalled_thenReturnUserInfo()
+        throws Exception {
+        User user = TestUtils.cloneUser(testUserWithId);
+        user.setUsername("username");
+
+        when(userRepository.findFirstByUsername("username"))
+            .thenReturn(Optional.of(user));
+
+        mockMvc.perform(get(selfUserUrl)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.name()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("name", is(user.getName())))
+            .andExpect(jsonPath("birthDate", is(user.getBirthDate().toString())))
+            .andExpect(jsonPath("username", is(user.getUsername())))
+        ;
     }
 }

@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ import wolox.training.exceptions.BookNotFoundException;
 import wolox.training.exceptions.NewPasswordsNotMatchException;
 import wolox.training.exceptions.NoPasswordsProvidedException;
 import wolox.training.exceptions.UserIdMismatchException;
+import wolox.training.exceptions.UserNotAuthenticatedException;
 import wolox.training.exceptions.UserNotFoundException;
 import wolox.training.exceptions.UserPasswordMismatch;
 import wolox.training.models.Book;
@@ -156,5 +158,17 @@ public class UserController {
         user.setPassword(newPassword);
 
         return userRepository.save(user);
+    }
+
+    @GetMapping("/self")
+    public User selfUser(Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            return userRepository
+                .findFirstByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+        }
+
+        throw new UserNotAuthenticatedException();
     }
 }
