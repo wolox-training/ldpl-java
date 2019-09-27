@@ -14,17 +14,16 @@ public interface BookRepository extends CrudRepository<Book, Long> {
     Optional<Book> findFirstByAuthor(String author);
 
     @Query(
-        value = "SELECT * FROM book WHERE "
-            + "(:isbn IS NULL OR isbn = :isbn) AND "
-            + "(:author IS NULL OR author = :author) AND "
-            + "(:genre IS NULL OR genre = :genre) AND "
-            + "(:image IS NULL OR image = :image) AND "
+        value = "SELECT b FROM Book b WHERE "
+            + "(:isbn IS NULL OR b.isbn = :isbn) AND "
+            + "(:author IS NULL OR b.author = :author) AND "
+            + "(:genre IS NULL OR b.genre = :genre) AND "
+            + "(:image IS NULL OR b.image = :image) AND "
             + "(:pages IS NULL OR pages = :pages) AND "
-            + "(:publisher IS NULL OR publisher = :publisher) AND "
-            + "(:subtitle IS NULL OR subtitle LIKE %:subtitle%) AND "
-            + "(:title IS NULL OR title LIKE %:title%) AND "
-            + "(:year IS NULL OR year = :year);",
-        nativeQuery = true
+            + "(:publisher IS NULL OR b.publisher = :publisher) AND "
+            + "(:subtitle IS NULL OR b.subtitle LIKE %:subtitle%) AND "
+            + "(:title IS NULL OR b.title LIKE %:title%) AND "
+            + "(:year IS NULL OR b.year = :year)"
     )
     List<Book> findAll(@Param("isbn") String isbn, @Param("author") String author,
         @Param("genre") String genre, @Param("image") String image, @Param("pages") Integer pages,
