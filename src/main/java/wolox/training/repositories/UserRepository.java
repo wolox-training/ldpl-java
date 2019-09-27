@@ -16,8 +16,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query(
         value =
-            "SELECT * FROM users WHERE (:startDate IS NULL OR birth_date BETWEEN :startDate AND :endDate) AND "
-                + "(:endDate IS NULL OR name LIKE %:name%)",
+            "SELECT * FROM users WHERE (:startDate IS NULL OR birth_date >= :startDate) AND "
+                + "(:endDate IS NULL OR birth_date <= :endDate) AND "
+                + "(:name IS NULL OR name LIKE %:name%)",
         nativeQuery = true
     )
     List<User> findByBirthDateAndName(@Param("startDate") LocalDate startDate,

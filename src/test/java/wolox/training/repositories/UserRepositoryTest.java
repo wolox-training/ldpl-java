@@ -81,7 +81,62 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void givenUsersInDB_whenFindByBirthDateAndName_thenReturn() {
+    public void givenUsersInDB_whenFindByBirthDateAndNameIsCalledWithBothDatesAndName_thenReturnFoundResults() {
+        persistUser();
+
+        LocalDate startDate = LocalDate.now().minusYears(2);
+        LocalDate endDate = LocalDate.now().plusYears(2);
+
+        List<User> userList = userRepository
+            .findByBirthDateAndName(startDate, endDate, "nam");
+
+        Assertions
+            .assertThat(userList)
+            .isNotEmpty();
+
+        User foundUser = userList.get(0);
+
+        Assertions.assertThat(foundUser.getName()).contains("nam");
+        Assertions.assertThat(foundUser.getBirthDate()).isBeforeOrEqualTo(endDate);
+        Assertions.assertThat(foundUser.getBirthDate()).isAfterOrEqualTo(startDate);
+        Assertions.assertThat(foundUser.getUsername()).isEqualTo(testUser.getUsername());
     }
 
+    @Test
+    public void givenUsersInDB_whenFindByBirthDateAndNameIsCalledWithOneDate_thenReturnFoundResults() {
+        persistUser();
+
+        LocalDate startDate = LocalDate.now().minusYears(2);
+
+        List<User> userList = userRepository
+            .findByBirthDateAndName(startDate, null, "nam");
+
+        Assertions
+            .assertThat(userList)
+            .isNotEmpty();
+
+        User foundUser = userList.get(0);
+
+        Assertions.assertThat(foundUser.getName()).contains("nam");
+        Assertions.assertThat(foundUser.getBirthDate()).isAfterOrEqualTo(startDate);
+        Assertions.assertThat(foundUser.getUsername()).isEqualTo(testUser.getUsername());
+    }
+
+    @Test
+    public void givenUsersInDB_whenFindByBirthDateAndNameIsCalledWithPartOfName_thenReturnFoundResults() {
+        persistUser();
+
+        List<User> userList = userRepository
+            .findByBirthDateAndName(null, null, "nam");
+
+        Assertions
+            .assertThat(userList)
+            .isNotEmpty();
+
+        User foundUser = userList.get(0);
+
+        Assertions.assertThat(foundUser.getName()).contains("nam");
+        Assertions.assertThat(foundUser.getUsername()).isEqualTo(testUser.getUsername());
+        Assertions.assertThat(foundUser.getBirthDate()).isEqualTo(testUser.getBirthDate());
+    }
 }
