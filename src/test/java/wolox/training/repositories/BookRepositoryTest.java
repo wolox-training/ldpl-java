@@ -89,4 +89,31 @@ public class BookRepositoryTest {
         Optional<Book> foundBook = bookRepository.findByIsbn(isbn);
         Assertions.assertThat(foundBook.isPresent()).isTrue();
     }
+
+    @Test
+    public void givenNoBooksOnDB_whenFindByGenreAndPublisherAndYear_thenReturnEmpty() {
+        List<Book> filteredBooks = bookRepository
+            .findByGenreAndPublisherAndYear("a genre", null, "1992");
+
+        Assertions.assertThat(filteredBooks).isEmpty();
+    }
+
+    @Test
+    public void givenBooksOnDB_whenFindByGenreAndPublisherAndYear_thenReturnListWithFoundBooks() {
+        persistBook();
+
+        String publisher = testBook.getPublisher();
+        String year = testBook.getYear();
+
+        List<Book> filteredBooks = bookRepository
+            .findByGenreAndPublisherAndYear(null, publisher, year);
+
+        Assertions.assertThat(filteredBooks).isNotEmpty();
+
+        Book foundBook = filteredBooks.get(0);
+        Assertions.assertThat(foundBook.getAuthor()).isEqualTo(testBook.getAuthor());
+        Assertions.assertThat(foundBook.getIsbn()).isEqualTo(testBook.getIsbn());
+        Assertions.assertThat(foundBook.getPublisher()).isEqualTo(publisher);
+        Assertions.assertThat(foundBook.getYear()).isEqualTo(year);
+    }
 }

@@ -3,6 +3,7 @@ package wolox.training.repositories;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -68,6 +69,19 @@ public class UserRepositoryTest {
         List<User> userList = userRepository.findAll();
 
         Assertions.assertThat(userList).isEmpty();
+    }
+
+    @Test
+    public void givenNoUsersInDB_whenFindByBirthDateAndName_thenReturnEmpty() {
+        List<User> userList = userRepository
+            .findByBirthDateAndName(LocalDate.now().minusYears(2), LocalDate.now().plusYears(2),
+                "nam");
+
+        Assertions.assertThat(userList).isEmpty();
+    }
+
+    @Test
+    public void givenUsersInDB_whenFindByBirthDateAndName_thenReturn() {
     }
 
 }
