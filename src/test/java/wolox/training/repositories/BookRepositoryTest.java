@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import wolox.training.TestUtils;
 import wolox.training.models.Book;
@@ -64,19 +66,21 @@ public class BookRepositoryTest {
     public void givenBooksInDatabase_whenFindAll_thenReturnBooksList() {
         persistBook();
 
-        List<Book> bookList = bookRepository
-            .findAll(null, null, null, null, null, null, null, null, null);
+        Page<Book> bookList = bookRepository
+            .findAll(null, null, null, null, null, null, null, null, null, PageRequest.of(0, 1));
+
+        List<Book> contentList = bookList.getContent();
 
         Assertions.assertThat(bookList).hasSize(1);
-        Assertions.assertThat(bookList.get(0)).isEqualTo(testBook);
+        Assertions.assertThat(contentList.get(0)).isEqualTo(testBook);
     }
 
     @Test
     public void givenNoBooksInDatabase_whenFindAll_thenReturnEmptyList() {
-        List<Book> bookList = bookRepository
-            .findAll(null, null, null, null, null, null, null, null, null);
+        Page<Book> bookList = bookRepository
+            .findAll(null, null, null, null, null, null, null, null, null, PageRequest.of(0, 1));
 
-        Assertions.assertThat(bookList).isEmpty();
+        Assertions.assertThat(bookList.getContent()).isEmpty();
     }
 
     @Test
@@ -94,10 +98,10 @@ public class BookRepositoryTest {
 
     @Test
     public void givenNoBooksOnDB_whenFindByGenreAndPublisherAndYear_thenReturnEmpty() {
-        List<Book> filteredBooks = bookRepository
-            .findByGenreAndPublisherAndYear("a genre", null, "1992");
+        Page<Book> filteredBooks = bookRepository
+            .findByGenreAndPublisherAndYear("a genre", null, "1992", PageRequest.of(0, 1));
 
-        Assertions.assertThat(filteredBooks).isEmpty();
+        Assertions.assertThat(filteredBooks.getContent()).isEmpty();
     }
 
     @Test
@@ -107,12 +111,12 @@ public class BookRepositoryTest {
         String publisher = testBook.getPublisher();
         String year = testBook.getYear();
 
-        List<Book> filteredBooks = bookRepository
-            .findByGenreAndPublisherAndYear(null, publisher, year);
+        Page<Book> filteredBooks = bookRepository
+            .findByGenreAndPublisherAndYear(null, publisher, year, PageRequest.of(0, 1));
 
-        Assertions.assertThat(filteredBooks).isNotEmpty();
+        Assertions.assertThat(filteredBooks.getContent()).isNotEmpty();
 
-        Book foundBook = filteredBooks.get(0);
+        Book foundBook = filteredBooks.getContent().get(0);
         Assertions.assertThat(foundBook.getAuthor()).isEqualTo(testBook.getAuthor());
         Assertions.assertThat(foundBook.getIsbn()).isEqualTo(testBook.getIsbn());
         Assertions.assertThat(foundBook.getPublisher()).isEqualTo(publisher);
@@ -123,11 +127,12 @@ public class BookRepositoryTest {
     public void givenBooksInDatabase_whenFindAllWithSomeFilterFields_thenReturnBooksList() {
         persistBook();
 
-        List<Book> bookList = bookRepository
+        Page<Book> bookList = bookRepository
             .findAll(testBook.getIsbn(), null, null, null, testBook.getPages(), null,
-                testBook.getSubtitle().substring(0, 5), testBook.getTitle().substring(3), null);
+                testBook.getSubtitle().substring(0, 5), testBook.getTitle().substring(3), null,
+                PageRequest.of(0, 1));
 
-        Assertions.assertThat(bookList).hasSize(1);
-        Assertions.assertThat(bookList.get(0)).isEqualTo(testBook);
+        Assertions.assertThat(bookList.getContent()).hasSize(1);
+        Assertions.assertThat(bookList.getContent().get(0)).isEqualTo(testBook);
     }
 }

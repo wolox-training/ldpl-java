@@ -1,7 +1,7 @@
 package wolox.training.controllers;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,9 +23,12 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -106,12 +108,17 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "username")
     public void givenNoUsers_thenGetUsersReturnEmptyList() throws Exception {
-        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+        Page<User> userPage = new PageImpl<>(Collections.emptyList());
+
+        when(userRepository.findAll(ArgumentMatchers.any()))
+            .thenReturn(userPage);
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().json("[]"));
+            .andExpect(jsonPath("$.content").exists())
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.content").isEmpty());
     }
 
     @Test
@@ -119,17 +126,20 @@ public class UserControllerTest {
     public void givenUsersExist_thenGetUsersReturnNonEmptyList() throws Exception {
         List<User> users = Collections.singletonList(testUser);
 
-        when(userRepository.findAll())
-            .thenReturn(users);
+        Page<User> userPage = new PageImpl<>(users);
+
+        when(userRepository.findAll(any()))
+            .thenReturn(userPage);
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8.name()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name", is(testUser.getName())))
-            .andExpect(jsonPath("$[0].username", is(testUser.getUsername())))
-            .andExpect(jsonPath("$[0].birthDate", is(testUser.getBirthDate().toString())));
+            .andExpect(jsonPath("$.content").exists())
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.content[0].name", is(testUser.getName())))
+            .andExpect(jsonPath("$.content[0].username", is(testUser.getUsername())))
+            .andExpect(jsonPath("$.content[0].birthDate", is(testUser.getBirthDate().toString())));
     }
 
     @Test

@@ -1,14 +1,14 @@
 package wolox.training.controllers;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +23,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -94,37 +96,45 @@ public class BookControllerTest {
     @Test
     @WithMockUser(username = "username")
     public void givenNoBooks_whenGetBooksIsCalled_thenReturnEmptyList() throws Exception {
-        when(bookRepository.findAll()).thenReturn(Collections.emptyList());
+        List<Book> books = Collections.emptyList();
+        Page<Book> bookPage = new PageImpl<>(books);
+
+        given(bookRepository
+            .findAll(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(bookPage);
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().json("[]"));
+            .andExpect(jsonPath("$.content").exists())
+            .andExpect(jsonPath("$.content").isEmpty());
     }
 
     @Test
     @WithMockUser(username = "username")
     public void givenBooksExist_whenGetBooksIsCalled_thenReturnNonEmptyList() throws Exception {
         List<Book> books = Collections.singletonList(testBook);
+        Page<Book> booksPage = new PageImpl<>(books);
 
-        when(bookRepository.findAll(null, null, null, null, null, null, null, null, null))
-            .thenReturn(books);
+        given(bookRepository
+            .findAll(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(booksPage);
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8.name()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].id", is(testBook.getId())))
-            .andExpect(jsonPath("$[0].isbn", is(testBook.getIsbn())))
-            .andExpect(jsonPath("$[0].author", is(testBook.getAuthor())))
-            .andExpect(jsonPath("$[0].genre", is(testBook.getGenre())))
-            .andExpect(jsonPath("$[0].image", is(testBook.getImage())))
-            .andExpect(jsonPath("$[0].year", is(testBook.getYear())))
-            .andExpect(jsonPath("$[0].pages", is(testBook.getPages())))
-            .andExpect(jsonPath("$[0].publisher", is(testBook.getPublisher())))
-            .andExpect(jsonPath("$[0].title", is(testBook.getTitle())))
-            .andExpect(jsonPath("$[0].subtitle", is(testBook.getSubtitle())));
+            .andExpect(jsonPath("$.content").exists())
+            .andExpect(jsonPath("$.content[0].id", is(testBook.getId())))
+            .andExpect(jsonPath("$.content[0].isbn", is(testBook.getIsbn())))
+            .andExpect(jsonPath("$.content[0].author", is(testBook.getAuthor())))
+            .andExpect(jsonPath("$.content[0].genre", is(testBook.getGenre())))
+            .andExpect(jsonPath("$.content[0].image", is(testBook.getImage())))
+            .andExpect(jsonPath("$.content[0].year", is(testBook.getYear())))
+            .andExpect(jsonPath("$.content[0].pages", is(testBook.getPages())))
+            .andExpect(jsonPath("$.content[0].publisher", is(testBook.getPublisher())))
+            .andExpect(jsonPath("$.content[0].title", is(testBook.getTitle())))
+            .andExpect(jsonPath("$.content[0].subtitle", is(testBook.getSubtitle())));
     }
 
     @Test

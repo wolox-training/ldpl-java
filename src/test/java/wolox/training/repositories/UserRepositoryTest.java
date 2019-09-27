@@ -4,13 +4,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import java.time.LocalDate;
-import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 import wolox.training.TestUtils;
 import wolox.training.models.User;
@@ -58,26 +60,26 @@ public class UserRepositoryTest {
     public void givenUsersInDatabase_whenFindAll_thenReturnUserList() {
         persistUser();
 
-        List<User> userList = userRepository.findAll();
+        Page<User> userList = userRepository.findAll(Pageable.unpaged());
 
-        Assertions.assertThat(userList).hasSize(1);
-        Assertions.assertThat(userList.get(0)).isEqualTo(testUser);
+        Assertions.assertThat(userList.getContent()).hasSize(1);
+        Assertions.assertThat(userList.getContent().get(0)).isEqualTo(testUser);
     }
 
     @Test
     public void givenNoUsersInDatabase_whenFindAll_thenReturnEmptyList() {
-        List<User> userList = userRepository.findAll();
+        Page<User> userList = userRepository.findAll(Pageable.unpaged());
 
-        Assertions.assertThat(userList).isEmpty();
+        Assertions.assertThat(userList.getContent()).isEmpty();
     }
 
     @Test
     public void givenNoUsersInDB_whenFindByBirthDateAndName_thenReturnEmpty() {
-        List<User> userList = userRepository
+        Page<User> userList = userRepository
             .findByBirthDateAndName(LocalDate.now().minusYears(2), LocalDate.now().plusYears(2),
-                "nam");
+                "nam", PageRequest.of(0, 1));
 
-        Assertions.assertThat(userList).isEmpty();
+        Assertions.assertThat(userList.getContent()).isEmpty();
     }
 
     @Test
@@ -87,14 +89,14 @@ public class UserRepositoryTest {
         LocalDate startDate = LocalDate.now().minusYears(2);
         LocalDate endDate = LocalDate.now().plusYears(2);
 
-        List<User> userList = userRepository
-            .findByBirthDateAndName(startDate, endDate, "nam");
+        Page<User> userList = userRepository
+            .findByBirthDateAndName(startDate, endDate, "nam", PageRequest.of(0, 1));
 
         Assertions
-            .assertThat(userList)
+            .assertThat(userList.getContent())
             .isNotEmpty();
 
-        User foundUser = userList.get(0);
+        User foundUser = userList.getContent().get(0);
 
         Assertions.assertThat(foundUser.getName()).contains("nam");
         Assertions.assertThat(foundUser.getBirthDate()).isBeforeOrEqualTo(endDate);
@@ -108,14 +110,14 @@ public class UserRepositoryTest {
 
         LocalDate startDate = LocalDate.now().minusYears(2);
 
-        List<User> userList = userRepository
-            .findByBirthDateAndName(startDate, null, "nam");
+        Page<User> userList = userRepository
+            .findByBirthDateAndName(startDate, null, "nam", PageRequest.of(0, 1));
 
         Assertions
-            .assertThat(userList)
+            .assertThat(userList.getContent())
             .isNotEmpty();
 
-        User foundUser = userList.get(0);
+        User foundUser = userList.getContent().get(0);
 
         Assertions.assertThat(foundUser.getName()).contains("nam");
         Assertions.assertThat(foundUser.getBirthDate()).isAfterOrEqualTo(startDate);
@@ -126,14 +128,14 @@ public class UserRepositoryTest {
     public void givenUsersInDB_whenFindByBirthDateAndNameIsCalledWithPartOfName_thenReturnFoundResults() {
         persistUser();
 
-        List<User> userList = userRepository
-            .findByBirthDateAndName(null, null, "nam");
+        Page<User> userList = userRepository
+            .findByBirthDateAndName(null, null, "nam", PageRequest.of(0, 1));
 
         Assertions
-            .assertThat(userList)
+            .assertThat(userList.getContent())
             .isNotEmpty();
 
-        User foundUser = userList.get(0);
+        User foundUser = userList.getContent().get(0);
 
         Assertions.assertThat(foundUser.getName()).contains("nam");
         Assertions.assertThat(foundUser.getUsername()).isEqualTo(testUser.getUsername());

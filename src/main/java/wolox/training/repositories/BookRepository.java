@@ -1,7 +1,8 @@
 package wolox.training.repositories;
 
-import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -25,10 +26,10 @@ public interface BookRepository extends CrudRepository<Book, Long> {
             + "(:title IS NULL OR b.title LIKE %:title%) AND "
             + "(:year IS NULL OR b.year = :year)"
     )
-    List<Book> findAll(@Param("isbn") String isbn, @Param("author") String author,
+    Page<Book> findAll(@Param("isbn") String isbn, @Param("author") String author,
         @Param("genre") String genre, @Param("image") String image, @Param("pages") Integer pages,
         @Param("publisher") String publisher, @Param("subtitle") String subtitle,
-        @Param("title") String title, @Param("year") String year);
+        @Param("title") String title, @Param("year") String year, Pageable pageable);
 
     Optional<Book> findByIsbn(String isbn);
 
@@ -38,6 +39,6 @@ public interface BookRepository extends CrudRepository<Book, Long> {
                 + "(:publisher IS NULL OR publisher = CAST(:publisher AS VARCHAR)) AND "
                 + "(:year IS NULL OR year = CAST(:year AS VARCHAR))",
         nativeQuery = true)
-    List<Book> findByGenreAndPublisherAndYear(@Param("genre") String genre,
-        @Param("publisher") String publisher, @Param("year") String year);
+    Page<Book> findByGenreAndPublisherAndYear(@Param("genre") String genre,
+        @Param("publisher") String publisher, @Param("year") String year, Pageable pageable);
 }
