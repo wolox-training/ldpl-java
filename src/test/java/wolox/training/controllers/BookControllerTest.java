@@ -107,7 +107,7 @@ public class BookControllerTest {
     public void givenBooksExist_whenGetBooksIsCalled_thenReturnNonEmptyList() throws Exception {
         List<Book> books = Collections.singletonList(testBook);
 
-        when(bookRepository.findAll())
+        when(bookRepository.findAll(null, null, null, null, null, null, null, null, null))
             .thenReturn(books);
 
         mockMvc.perform(get(baseUrl)

@@ -52,8 +52,19 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public List<Book> findAll(
+        @RequestParam(name = "isbn", required = false) String isbn,
+        @RequestParam(name = "author", required = false) String author,
+        @RequestParam(name = "genre", required = false) String genre,
+        @RequestParam(name = "image", required = false) String image,
+        @RequestParam(name = "pages", required = false) Integer pages,
+        @RequestParam(name = "publisher", required = false) String publisher,
+        @RequestParam(name = "subtitle", required = false) String subtitle,
+        @RequestParam(name = "title", required = false) String title,
+        @RequestParam(name = "year", required = false) String year
+    ) {
+        return bookRepository
+            .findAll(isbn, author, genre, image, pages, publisher, subtitle, title, year);
     }
 
     @GetMapping("/{id}")
