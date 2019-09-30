@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,6 +16,7 @@ import javax.persistence.ManyToMany;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Book {
@@ -67,18 +69,19 @@ public class Book {
         // Added to use with JPA;
     }
 
-    public Book(Long id, String isbn, String author, String genre, String image, Integer pages,
-        String publisher, String subtitle, String title, String year) {
+    public Book(@Nullable Long id, @NotNull String isbn, @NotNull String author, String genre,
+        @NotNull String image, @Min(1) Integer pages, @NotNull String publisher,
+        @NotNull String subtitle, @NotNull String title, @Size(min = 4, max = 4) String year) {
         this.id = id;
-        setIsbn(isbn);
-        setAuthor(author);
-        setGenre(genre);
-        setImage(image);
-        setPages(pages);
-        setPublisher(publisher);
-        setSubtitle(subtitle);
-        setTitle(title);
-        setYear(year);
+        this.isbn = isbn;
+        this.author = author;
+        this.genre = genre;
+        this.image = image;
+        this.pages = pages;
+        this.publisher = publisher;
+        this.subtitle = subtitle;
+        this.title = title;
+        this.year = year;
     }
 
     public Long getId() {
