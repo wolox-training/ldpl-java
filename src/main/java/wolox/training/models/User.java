@@ -1,6 +1,7 @@
 package wolox.training.models;
 
 import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
@@ -44,12 +45,13 @@ public class User {
     @NotNull(message = "Birth date is required")
     private LocalDate birthDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
         name = "book_user",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "book_id")
     )
+    @JsonManagedReference
     private List<Book> books = new ArrayList<>();
 
     public Long getId() {

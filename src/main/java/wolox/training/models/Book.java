@@ -2,6 +2,7 @@ package wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.google.common.base.Preconditions;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -154,7 +155,7 @@ public class Book {
     }
 
     public List<User> getUsers() {
-        return users;
+        return Collections.unmodifiableList(users);
     }
 
     public void setUsers(List<User> users) {
