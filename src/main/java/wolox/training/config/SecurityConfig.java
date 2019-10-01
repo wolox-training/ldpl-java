@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import wolox.training.authentication.UserAndPasswordAuthenticationProvider;
@@ -24,10 +25,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .exceptionHandling()
             .and()
             .authorizeRequests()
-            .antMatchers(HttpMethod.POST, "/api/books/").permitAll()
-            .antMatchers(HttpMethod.POST, "/api/users/").permitAll()
-            .and()
-            .authorizeRequests()
             .anyRequest()
             .authenticated()
             .and()
@@ -37,5 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(userAndPasswordAuthenticationProvider);
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web
+            .ignoring()
+            .antMatchers(HttpMethod.POST, "/api/books/")
+            .antMatchers(HttpMethod.POST, "/api/users/");
     }
 }
