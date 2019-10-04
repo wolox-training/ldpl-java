@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.junit4.SpringRunner;
 import wolox.training.TestUtils;
 import wolox.training.models.User;
@@ -58,12 +61,37 @@ public class UserRepositoryTest {
 
     @Test
     public void givenUsersInDatabase_whenFindAll_thenReturnUserList() {
-        persistUser();
+        for (int i = 0; i < 20; i++) {
+            String name = String.valueOf((i % 2 != 0) ? i - 1 : i);
 
-        Page<User> userList = userRepository.findAll(Pageable.unpaged());
+            User tmpUser = TestUtils
+                .createUserWithData(null, String.valueOf(i), name, String.valueOf(i));
 
-        Assertions.assertThat(userList.getContent()).hasSize(1);
-        Assertions.assertThat(userList.getContent().get(0)).isEqualTo(testUser);
+            TestUtils.persist(testEntityManager, tmpUser);
+        }
+
+        Page<User> userList = userRepository
+            .findAll(PageRequest.of(0, 5, Sort.by(Order.asc("name"), Order.desc("username"))));
+
+        Assertions.assertThat(userList.getContent()).hasSize(5);
+        Assertions.assertThat(userList.getTotalElements()).isEqualTo(20);
+        Assertions.assertThat(userList.getTotalPages()).isEqualTo(4);
+        Assertions.assertThat(userList.getNumber()).isEqualTo(0);
+        Assertions.assertThat(userList.isEmpty()).isFalse();
+
+        List<User> content = userList.getContent();
+        Assertions.assertThat(content).isNotEmpty();
+        Assertions.assertThat(content).hasSize(5);
+
+        Assertions
+            .assertThat(content.get(0).getName())
+            .isEqualTo(content.get(1).getName());
+
+        Assertions
+            .assertThat(content.get(0).getUsername())
+            .isGreaterThan(content.get(1).getUsername());
+
+
     }
 
     @Test

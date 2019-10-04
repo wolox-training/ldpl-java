@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.junit4.SpringRunner;
 import wolox.training.TestUtils;
 import wolox.training.models.Book;
@@ -64,15 +66,28 @@ public class BookRepositoryTest {
 
     @Test
     public void givenBooksInDatabase_whenFindAll_thenReturnBooksList() {
-        persistBook();
+        for (int i = 0; i < 10; i++) {
+            Book tmpBook = TestUtils
+                .createBookWithData(null, isbn, bookAuthor, "http://my-image.net/book",
+                    33, "El planeta", "The raven", "Narrative Poem", 1845);
+
+            TestUtils.persist(testEntityManager, tmpBook);
+        }
 
         Page<Book> bookList = bookRepository
-            .findAll(null, null, null, null, null, null, null, null, null, PageRequest.of(0, 1));
+            .findAll(null, null, null, null, null, null, null, null, null,
+                PageRequest.of(0, 2, Sort.by(Order.desc("id"))));
 
         List<Book> contentList = bookList.getContent();
 
-        Assertions.assertThat(bookList).hasSize(1);
-        Assertions.assertThat(contentList.get(0)).isEqualTo(testBook);
+        Assertions.assertThat(bookList).hasSize(2);
+        Assertions.assertThat(bookList.getTotalElements()).isEqualTo(10);
+        Assertions.assertThat(bookList.getTotalPages()).isEqualTo(5);
+        Assertions.assertThat(bookList.getNumber()).isEqualTo(0);
+
+        Assertions
+            .assertThat(contentList.get(0).getId())
+            .isGreaterThan(contentList.get(1).getId());
     }
 
     @Test
