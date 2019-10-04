@@ -1,6 +1,7 @@
 package wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -75,6 +76,7 @@ public class Book {
     }
 
     public void setIsbn(String isbn) {
+        Preconditions.checkNotNull(isbn, "Isbn can't be null");
         this.isbn = isbn;
     }
 
@@ -83,6 +85,7 @@ public class Book {
     }
 
     public void setAuthor(String author) {
+        Preconditions.checkNotNull(author, "Author can't be null");
         this.author = author;
     }
 
@@ -99,6 +102,7 @@ public class Book {
     }
 
     public void setImage(String image) {
+        Preconditions.checkNotNull(image, "Image can't be null");
         this.image = image;
     }
 
@@ -107,6 +111,8 @@ public class Book {
     }
 
     public void setPages(Integer pages) {
+        Preconditions.checkArgument(pages != null && pages > 0,
+            "Invalid pages argument, must be a number, at least 1");
         this.pages = pages;
     }
 
@@ -115,6 +121,7 @@ public class Book {
     }
 
     public void setPublisher(String publisher) {
+        Preconditions.checkNotNull(publisher, "Publisher can't be null");
         this.publisher = publisher;
     }
 
@@ -123,6 +130,7 @@ public class Book {
     }
 
     public void setSubtitle(String subtitle) {
+        Preconditions.checkNotNull(subtitle, "Subtitle can't be null");
         this.subtitle = subtitle;
     }
 
@@ -131,6 +139,7 @@ public class Book {
     }
 
     public void setTitle(String title) {
+        Preconditions.checkNotNull(title, "Title can't be null");
         this.title = title;
     }
 
@@ -139,6 +148,9 @@ public class Book {
     }
 
     public void setYear(String year) {
+        Preconditions
+            .checkArgument(year != null && year.length() == 4 && Integer.parseInt(year) > 0,
+                "Type a valid year, i.e 1992");
         this.year = year;
     }
 
@@ -147,6 +159,7 @@ public class Book {
     }
 
     public void setUsers(List<User> users) {
+        Preconditions.checkNotNull(users, "Users must not be null");
         this.users = users;
     }
 

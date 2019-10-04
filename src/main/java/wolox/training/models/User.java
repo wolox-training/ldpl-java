@@ -1,5 +1,6 @@
 package wolox.training.models;
 
+import com.google.common.base.Preconditions;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -62,6 +63,7 @@ public class User {
     }
 
     public void setUsername(String username) {
+        Preconditions.checkNotNull(username, "Username can't be null");
         this.username = username;
     }
 
@@ -70,6 +72,7 @@ public class User {
     }
 
     public void setName(String name) {
+        Preconditions.checkNotNull(name, "Name can't be null");
         this.name = name;
     }
 
@@ -78,6 +81,8 @@ public class User {
     }
 
     public void setBirthDate(LocalDate birthDate) {
+        Preconditions.checkArgument(birthDate != null && birthDate.isBefore(LocalDate.now()),
+            "Birth date can't be null or be in the future");
         this.birthDate = birthDate;
     }
 
@@ -86,10 +91,12 @@ public class User {
     }
 
     public void setBooks(List<Book> books) {
+        Preconditions.checkNotNull(books, "Books list can't be empty");
         this.books = books;
     }
 
     public void addBook(Book book) {
+        Preconditions.checkNotNull(book, "A null book can't be added");
         if (books.contains(book)) {
             throw new BookAlreadyOwned();
         }
@@ -98,6 +105,7 @@ public class User {
     }
 
     public boolean removeBook(Book book) {
+        Preconditions.checkNotNull(book, "A null book can't be removed");
         if (!books.contains(book)) {
             throw new BookNotFoundException();
         }
