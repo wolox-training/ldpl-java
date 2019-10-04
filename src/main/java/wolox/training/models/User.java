@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,6 +25,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
@@ -53,7 +55,7 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
     private LocalDate birthDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
         name = "book_user",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -65,11 +67,12 @@ public class User {
         // Added to use with JPA;
     }
 
-    public User(Long id, String username, String name, LocalDate birthDate) {
+    public User(@Nullable Long id, @NotNull String username, @NotNull String name,
+        @NotNull @Past LocalDate birthDate) {
         this.id = id;
-        setUsername(username);
-        setName(name);
-        setBirthDate(birthDate);
+        this.username = username;
+        this.name = name;
+        this.birthDate = birthDate;
     }
 
     public Long getId() {
@@ -81,7 +84,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        Preconditions.checkNotNull(username, "Username can't be null --->");
+        Preconditions.checkNotNull(username, "Username can't be null");
         this.username = username;
     }
 
