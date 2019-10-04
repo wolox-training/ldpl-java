@@ -1,6 +1,6 @@
 package wolox.training.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class Book {
     private String year;
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
     public Book() {
