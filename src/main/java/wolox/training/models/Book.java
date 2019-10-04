@@ -3,6 +3,7 @@ package wolox.training.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -166,12 +167,13 @@ public class Book {
 
     public void setYear(String year) {
         Preconditions
-            .checkArgument(year != null && year.length() == 4 && Integer.parseInt(year) > 0, "I");
+            .checkArgument(year != null && year.length() == 4 && Integer.parseInt(year) > 0,
+                "Type a valid year, i.e 1992");
         this.year = year;
     }
 
     public List<User> getUsers() {
-        return users;
+        return Collections.unmodifiableList(users);
     }
 
     public void setUsers(List<User> users) {

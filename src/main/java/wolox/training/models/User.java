@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
@@ -55,12 +56,13 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
     private LocalDate birthDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
         name = "book_user",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "book_id")
     )
+    @JsonManagedReference
     private List<Book> books = new ArrayList<>();
 
     public User() {
@@ -84,7 +86,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        Preconditions.checkNotNull(username, "Username can't be null --->");
+        Preconditions.checkNotNull(username, "Username can't be null");
         this.username = username;
     }
 
