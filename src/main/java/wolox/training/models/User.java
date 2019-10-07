@@ -1,13 +1,19 @@
 package wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.google.common.base.Preconditions;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +25,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import wolox.training.exceptions.BookAlreadyOwned;
 import wolox.training.exceptions.BookNotFoundException;
 
@@ -43,6 +50,9 @@ public class User {
     @ApiModelProperty(value = "User's birth date", dataType = "String", example = "1992-11-26")
     @Column(nullable = false)
     @NotNull(message = "Birth date is required")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
     private LocalDate birthDate;
 
     @ManyToMany(cascade = {CascadeType.MERGE})
@@ -51,8 +61,19 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "book_id")
     )
-    @JsonManagedReference
     private List<Book> books = new ArrayList<>();
+
+    public User() {
+        // Added to use with JPA;
+    }
+
+    public User(@Nullable Long id, @NotNull String username, @NotNull String name,
+        @NotNull @Past LocalDate birthDate) {
+        this.id = id;
+        this.username = username;
+        this.name = name;
+        this.birthDate = birthDate;
+    }
 
     public Long getId() {
         return id;

@@ -1,10 +1,12 @@
 package wolox.training.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,6 +17,7 @@ import javax.persistence.ManyToMany;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Book {
@@ -60,11 +63,26 @@ public class Book {
     private String year;
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
-    @JsonBackReference
-    private List<User> users;
+    @JsonIgnore
+    private List<User> users = new ArrayList<>();
 
     public Book() {
         // Added to use with JPA;
+    }
+
+    public Book(@Nullable Long id, @NotNull String isbn, @NotNull String author, String genre,
+        @NotNull String image, @Min(1) Integer pages, @NotNull String publisher,
+        @NotNull String subtitle, @NotNull String title, @Size(min = 4, max = 4) String year) {
+        this.id = id;
+        this.isbn = isbn;
+        this.author = author;
+        this.genre = genre;
+        this.image = image;
+        this.pages = pages;
+        this.publisher = publisher;
+        this.subtitle = subtitle;
+        this.title = title;
+        this.year = year;
     }
 
     public Long getId() {
@@ -165,7 +183,8 @@ public class Book {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof Book) && this.getId().equals(((Book) obj).getId());
+        return (obj instanceof Book) && this.getId() != null && this.getId()
+            .equals(((Book) obj).getId());
     }
 
     @Override

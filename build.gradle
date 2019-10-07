@@ -36,5 +36,8 @@ dependencies {
     // Guava
     implementation 'com.google.guava:guava:27.0-jre'
 
+    // Temporal database for tests
+    testImplementation 'com.h2database:h2:1.4.199'
+
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
 }
