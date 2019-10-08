@@ -408,7 +408,6 @@ public class BookControllerTest {
 
         Page<Book> booksPage = new PageImpl<>(books);
 
-        String nameSort = "isb,asc";
         String page = "0";
         String size = "10";
 
