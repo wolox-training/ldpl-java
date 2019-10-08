@@ -3,6 +3,7 @@ package wolox.training.controllers;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,15 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,6 +52,9 @@ public class UserControllerTest {
     private final String OLD_PASSWORD_KEY = "oldPassword";
     private final String NEW_PASSWORD_KEY = "newPassword";
     private final String NEW_PASSWORD_CONFIRMATION_KEY = "newPasswordConfirmation";
+    private final String KEY_PAGE = "page";
+    private final String KEY_SIZE = "size";
+    private final String KEY_SORT = "sort";
 
     @Autowired
     private MockMvc mockMvc;
@@ -108,22 +116,46 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "username")
     public void givenNoUsers_thenGetUsersReturnEmptyList() throws Exception {
+        String nameSort = "name,asc";
+        String page = "0";
+        String size = "10";
+
         Page<User> userPage = new PageImpl<>(Collections.emptyList());
 
         when(userRepository.findAll(ArgumentMatchers.any()))
             .thenReturn(userPage);
 
         mockMvc.perform(get(baseUrl)
-            .contentType(MediaType.APPLICATION_JSON))
+            .contentType(MediaType.APPLICATION_JSON)
+            .param(KEY_SORT, nameSort)
+            .param(KEY_PAGE, page)
+            .param(KEY_SIZE, size))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").exists())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.content").isEmpty());
+
+        ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(userRepository).findAll(pageableArgumentCaptor.capture());
+        Pageable pageable = pageableArgumentCaptor.getValue();
+
+        Assertions.assertThat(pageable).isNotNull();
+        Assertions.assertThat(pageable.getPageNumber()).isEqualTo(Integer.valueOf(page));
+        Assertions.assertThat(pageable.getPageSize()).isEqualTo(Integer.valueOf(size));
+        Assertions.assertThat(pageable.getSort()).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("name")).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("name").getDirection()).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("name").getDirection())
+            .isEqualTo(Direction.ASC);
     }
 
     @Test
     @WithMockUser(username = "username")
     public void givenUsersExist_thenGetUsersReturnNonEmptyList() throws Exception {
+        String nameSort = "username,desc";
+        String page = "0";
+        String size = "10";
+
         List<User> users = Collections.singletonList(testUser);
 
         Page<User> userPage = new PageImpl<>(users);
@@ -133,13 +165,30 @@ public class UserControllerTest {
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON)
-            .characterEncoding(StandardCharsets.UTF_8.name()))
+            .characterEncoding(StandardCharsets.UTF_8.name())
+            .param(KEY_SORT, nameSort)
+            .param(KEY_PAGE, page)
+            .param(KEY_SIZE, size))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").exists())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.content[0].name", is(testUser.getName())))
             .andExpect(jsonPath("$.content[0].username", is(testUser.getUsername())))
             .andExpect(jsonPath("$.content[0].birthDate", is(testUser.getBirthDate().toString())));
+
+        ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(userRepository).findAll(pageableArgumentCaptor.capture());
+        Pageable pageable = pageableArgumentCaptor.getValue();
+
+        Assertions.assertThat(pageable).isNotNull();
+        Assertions.assertThat(pageable.getPageNumber()).isEqualTo(Integer.valueOf(page));
+        Assertions.assertThat(pageable.getPageSize()).isEqualTo(Integer.valueOf(size));
+        Assertions.assertThat(pageable.getSort()).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("username")).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("username").getDirection())
+            .isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("username").getDirection())
+            .isEqualTo(Direction.DESC);
     }
 
     @Test
