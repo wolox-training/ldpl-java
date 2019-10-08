@@ -1,9 +1,11 @@
 package wolox.training.controllers;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,17 +16,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,6 +49,10 @@ import wolox.training.services.OpenLibraryService;
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
+
+    private final String KEY_PAGE = "page";
+    private final String KEY_SIZE = "size";
+    private final String KEY_SORT = "sort";
 
     @Autowired
     private MockMvc mockMvc;
@@ -374,5 +386,62 @@ public class BookControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8.name()))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "username")
+    public void givenBooksExist_whenGetBooksIsCalledPaginated_thenReturnElementsAsExpected()
+        throws Exception {
+        List<Book> books = new ArrayList<>();
+
+        books.add(
+            TestUtils.createBookWithData(2L, "isbn2", "author2", "image2", 2 * 100, "publisher2",
+                "title2", "subtitle2", 2002));
+        books.add(
+            TestUtils.createBookWithData(3L, "isbn3", "author3", "image3", 3 * 100, "publisher3",
+                "title3", "subtitle3", 2003));
+        books.add(
+            TestUtils.createBookWithData(1L, "isbn1", "author1", "image1", 100, "publisher1",
+                "title1", "subtitle1", 2001));
+
+        books.sort(Comparator.comparing(Book::getIsbn));
+
+        Page<Book> booksPage = new PageImpl<>(books);
+
+        String nameSort = "isb,asc";
+        String page = "0";
+        String size = "10";
+
+        given(bookRepository
+            .findAll(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(booksPage);
+
+        mockMvc.perform(get(baseUrl)
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.name())
+            .param(KEY_SORT, "isbn,asc")
+            .param(KEY_PAGE, page)
+            .param(KEY_SIZE, size))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").exists())
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.content", hasSize(3)))
+            .andExpect(jsonPath("$.content[0].isbn", is("isbn1")))
+            .andExpect(jsonPath("$.content[1].isbn", is("isbn2")));
+
+        ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(bookRepository)
+            .findAll(any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                pageableArgumentCaptor.capture());
+        Pageable pageable = pageableArgumentCaptor.getValue();
+
+        Assertions.assertThat(pageable).isNotNull();
+        Assertions.assertThat(pageable.getPageNumber()).isEqualTo(Integer.valueOf(page));
+        Assertions.assertThat(pageable.getPageSize()).isEqualTo(Integer.valueOf(size));
+        Assertions.assertThat(pageable.getSort()).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("isbn")).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("isbn").getDirection()).isNotNull();
+        Assertions.assertThat(pageable.getSort().getOrderFor("isbn").getDirection())
+            .isEqualTo(Direction.ASC);
     }
 }
