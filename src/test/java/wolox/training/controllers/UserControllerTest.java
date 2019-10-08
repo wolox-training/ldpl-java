@@ -1,7 +1,6 @@
 package wolox.training.controllers;
 
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,14 +25,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -122,7 +123,10 @@ public class UserControllerTest {
 
         Page<User> userPage = new PageImpl<>(Collections.emptyList());
 
-        when(userRepository.findAll(ArgumentMatchers.any()))
+        Pageable pageableRequest = PageRequest
+            .of(Integer.parseInt(page), Integer.parseInt(size), Sort.by(Order.asc("name")));
+
+        when(userRepository.findAll(pageableRequest))
             .thenReturn(userPage);
 
         mockMvc.perform(get(baseUrl)
@@ -152,29 +156,41 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "username")
     public void givenUsersExist_thenGetUsersReturnNonEmptyList() throws Exception {
-        String nameSort = "username,desc";
+        String usernameSort = "username,desc";
         String page = "0";
         String size = "10";
 
-        List<User> users = Collections.singletonList(testUser);
+        List<User> users = new ArrayList<>();
+        User userWithData = TestUtils.createUserWithData(2L, "username3", "name3", "password3");
+        users.add(userWithData);
+        users.add(TestUtils.createUserWithData(1L, "username2", "name2", "password2"));
+        users.add(TestUtils.createUserWithData(3L, "username1", "name1", "password1"));
+
+        users.sort((user1, user2) -> user2.getUsername().compareTo(user1.getUsername()));
 
         Page<User> userPage = new PageImpl<>(users);
 
-        when(userRepository.findAll(any()))
+        Pageable pageableRequest = PageRequest
+            .of(Integer.parseInt(page), Integer.parseInt(size), Sort.by(Order.desc("username")));
+
+        when(userRepository.findAll(pageableRequest))
             .thenReturn(userPage);
 
         mockMvc.perform(get(baseUrl)
             .contentType(MediaType.APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8.name())
-            .param(KEY_SORT, nameSort)
+            .param(KEY_SORT, usernameSort)
             .param(KEY_PAGE, page)
             .param(KEY_SIZE, size))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").exists())
             .andExpect(jsonPath("$.content").isArray())
-            .andExpect(jsonPath("$.content[0].name", is(testUser.getName())))
-            .andExpect(jsonPath("$.content[0].username", is(testUser.getUsername())))
-            .andExpect(jsonPath("$.content[0].birthDate", is(testUser.getBirthDate().toString())));
+            .andExpect(jsonPath("$.content[0].name", is(userWithData.getName())))
+            .andExpect(jsonPath("$.content[0].username", is(userWithData.getUsername())))
+            .andExpect(
+                jsonPath("$.content[0].birthDate", is(userWithData.getBirthDate().toString())))
+            .andExpect(jsonPath("$.content[0].username", is("username3")))
+            .andExpect(jsonPath("$.content[1].username", is("username2")));
 
         ArgumentCaptor<Pageable> pageableArgumentCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(userRepository).findAll(pageableArgumentCaptor.capture());

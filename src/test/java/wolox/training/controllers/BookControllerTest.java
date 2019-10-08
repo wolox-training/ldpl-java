@@ -31,8 +31,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -411,8 +414,11 @@ public class BookControllerTest {
         String page = "0";
         String size = "10";
 
+        PageRequest pageableRequest = PageRequest
+            .of(Integer.parseInt(page), Integer.parseInt(size), Sort.by(Order.asc("isbn")));
+
         given(bookRepository
-            .findAll(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+            .findAll(null, null, null, null, null, null, null, null, null, pageableRequest))
             .willReturn(booksPage);
 
         mockMvc.perform(get(baseUrl)
