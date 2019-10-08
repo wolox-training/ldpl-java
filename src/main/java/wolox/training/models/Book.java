@@ -18,6 +18,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import wolox.training.models.dtos.BookDto;
 
 @Entity
 public class Book {
@@ -83,6 +84,20 @@ public class Book {
         this.subtitle = subtitle;
         this.title = title;
         this.year = year;
+    }
+
+    public static Book fromDto(BookDto bookDto) {
+        Book book = new Book();
+        book.setIsbn(bookDto.getISBN());
+        book.setAuthor(String.join(" - ", bookDto.getAuthors()));
+        book.setGenre(null);
+        book.setImage(bookDto.getImage());
+        book.setPages(bookDto.getPages());
+        book.setPublisher(String.join(" - ", bookDto.getPublishers()));
+        book.setSubtitle(bookDto.getSubtitle());
+        book.setTitle(bookDto.getTitle());
+        book.setYear(bookDto.getPublishDate());
+        return book;
     }
 
     public Long getId() {
