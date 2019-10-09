@@ -7,11 +7,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,8 +24,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import wolox.training.exceptions.BookNotFoundException;
+import wolox.training.exceptions.NewPasswordsNotMatchException;
+import wolox.training.exceptions.NoPasswordsProvidedException;
 import wolox.training.exceptions.UserIdMismatchException;
 import wolox.training.exceptions.UserNotFoundException;
+import wolox.training.exceptions.UserPasswordMismatch;
 import wolox.training.models.Book;
 import wolox.training.models.User;
 import wolox.training.repositories.BookRepository;
@@ -82,7 +89,10 @@ public class UserController {
         userRepository.findById(id)
             .orElseThrow(UserNotFoundException::new);
 
-        return userRepository.save(user);
+        User newUser = new User(user.getId(), user.getUsername(), user.getName(),
+            user.getBirthDate());
+
+        return userRepository.save(newUser);
     }
 
     @PutMapping("/{userId}/books/{bookId}")
@@ -113,6 +123,37 @@ public class UserController {
             .orElseThrow(BookNotFoundException::new);
 
         user.removeBook(book);
+
+        return userRepository.save(user);
+    }
+
+    @PatchMapping("/{userId}/password")
+    @ResponseStatus(HttpStatus.OK)
+    public User updatePassword(@PathVariable(name = "userId") Long userId,
+        @RequestBody Map<String, String> data) {
+        String oldPassword = Optional.ofNullable(data.get("oldPassword")).orElse("");
+        String newPassword = Optional.ofNullable(data.get("newPassword")).orElse("");
+        String newPasswordConfirmation = Optional
+            .ofNullable(data.get("newPasswordConfirmation"))
+            .orElse("");
+
+        if (oldPassword.isEmpty() || newPassword.isEmpty() || newPasswordConfirmation.isEmpty()) {
+            throw new NoPasswordsProvidedException();
+        }
+
+        if (!newPassword.equals(newPasswordConfirmation)) {
+            throw new NewPasswordsNotMatchException();
+        }
+
+        User user = userRepository
+            .findById(userId)
+            .orElseThrow(UserNotFoundException::new);
+
+        if (!BCrypt.checkpw(oldPassword, user.getPassword())) {
+            throw new UserPasswordMismatch();
+        }
+
+        user.setPassword(newPassword);
 
         return userRepository.save(user);
     }

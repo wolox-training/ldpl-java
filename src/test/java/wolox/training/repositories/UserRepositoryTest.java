@@ -29,7 +29,7 @@ public class UserRepositoryTest {
 
     private void persistUser() {
         testUser = TestUtils
-            .createUserWithData(null, userUsername, "a name");
+            .createUserWithData(null, userUsername, "a name", "password");
 
         TestUtils.persist(testEntityManager, testUser);
     }

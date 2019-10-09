@@ -33,7 +33,9 @@ public class TestUtils {
     }
 
     public static User createUserWithData(@Nullable Long id, @Nonnull String username,
-        @Nonnull String name) {
-        return new User(id, username, name, LocalDate.now().minusYears(1));
+        @Nonnull String name, String password) {
+        User user = new User(id, username, name, LocalDate.now().minusYears(1));
+        user.setPassword(password);
+        return user;
     }
 }
