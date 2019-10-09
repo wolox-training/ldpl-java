@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TrainingApplicationTests {
 
     @Test
-    public void dummy() {
+    public void contextLoad() {
         Assertions.assertThat(true).isTrue();
     }
 }
