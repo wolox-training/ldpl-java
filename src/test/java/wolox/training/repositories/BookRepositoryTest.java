@@ -64,7 +64,8 @@ public class BookRepositoryTest {
     public void givenBooksInDatabase_whenFindAll_thenReturnBooksList() {
         persistBook();
 
-        List<Book> bookList = bookRepository.findAll();
+        List<Book> bookList = bookRepository
+            .findAll(null, null, null, null, null, null, null, null, null);
 
         Assertions.assertThat(bookList).hasSize(1);
         Assertions.assertThat(bookList.get(0)).isEqualTo(testBook);
@@ -72,7 +73,8 @@ public class BookRepositoryTest {
 
     @Test
     public void givenNoBooksInDatabase_whenFindAll_thenReturnEmptyList() {
-        List<Book> bookList = bookRepository.findAll();
+        List<Book> bookList = bookRepository
+            .findAll(null, null, null, null, null, null, null, null, null);
 
         Assertions.assertThat(bookList).isEmpty();
     }
@@ -115,5 +117,17 @@ public class BookRepositoryTest {
         Assertions.assertThat(foundBook.getIsbn()).isEqualTo(testBook.getIsbn());
         Assertions.assertThat(foundBook.getPublisher()).isEqualTo(publisher);
         Assertions.assertThat(foundBook.getYear()).isEqualTo(year);
+    }
+
+    @Test
+    public void givenBooksInDatabase_whenFindAllWithSomeFilterFields_thenReturnBooksList() {
+        persistBook();
+
+        List<Book> bookList = bookRepository
+            .findAll(testBook.getIsbn(), null, null, null, testBook.getPages(), null,
+                testBook.getSubtitle().substring(0, 5), testBook.getTitle().substring(3), null);
+
+        Assertions.assertThat(bookList).hasSize(1);
+        Assertions.assertThat(bookList.get(0)).isEqualTo(testBook);
     }
 }
