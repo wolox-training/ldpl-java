@@ -70,6 +70,7 @@ public class UserControllerTest {
     private UserAndPasswordAuthenticationProvider userAndPasswordAuthenticationProvider;
 
     private String baseUrl = "/api/users/";
+    private String protectedUserListUrl = "/api/users/";
     private String selfUserUrl = baseUrl.concat("self");
     private User testUser;
     private User testUserWithId;
@@ -506,6 +507,15 @@ public class UserControllerTest {
             .accept(MediaType.APPLICATION_JSON).characterEncoding(StandardCharsets.UTF_8.name())
             .content(TestUtils.toStringJson(body)))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    public void givenNoAuthenticatedUser_whenTryToAccessProtectedResource_thenItWillThrow401()
+        throws Exception {
+        mockMvc.perform(get(protectedUserListUrl)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.name()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test

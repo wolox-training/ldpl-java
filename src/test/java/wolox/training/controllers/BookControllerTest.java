@@ -70,6 +70,7 @@ public class BookControllerTest {
     private UserAndPasswordAuthenticationProvider userAndPasswordAuthenticationProvider;
 
     private String baseUrl = "/api/books/";
+    private String protectedBookListUrl = "/api/books/";
     private Book testBook;
     private Book testBookWithId;
 
@@ -389,6 +390,15 @@ public class BookControllerTest {
             .accept(MediaType.APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8.name()))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void givenNoAuthenticatedUser_whenTryToAccessProtectedResource_thenItWillThrow401()
+        throws Exception {
+        mockMvc.perform(get(protectedBookListUrl)
+            .accept(MediaType.APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8.name()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
