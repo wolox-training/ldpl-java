@@ -1,10 +1,11 @@
 package wolox.training.controllers;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -52,7 +53,7 @@ public class BookController {
     }
 
     @GetMapping
-    public List<Book> findAll(
+    public Page<Book> findAll(
         @RequestParam(name = "isbn", required = false) String isbn,
         @RequestParam(name = "author", required = false) String author,
         @RequestParam(name = "genre", required = false) String genre,
@@ -61,10 +62,11 @@ public class BookController {
         @RequestParam(name = "publisher", required = false) String publisher,
         @RequestParam(name = "subtitle", required = false) String subtitle,
         @RequestParam(name = "title", required = false) String title,
-        @RequestParam(name = "year", required = false) String year
+        @RequestParam(name = "year", required = false) String year,
+        Pageable pageable
     ) {
         return bookRepository
-            .findAll(isbn, author, genre, image, pages, publisher, subtitle, title, year);
+            .findAll(isbn, author, genre, image, pages, publisher, subtitle, title, year, pageable);
     }
 
     @GetMapping("/{id}")
