@@ -41,6 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web
             .ignoring()
             .antMatchers(HttpMethod.POST, "/api/books/")
-            .antMatchers(HttpMethod.POST, "/api/users/");
+            .antMatchers(HttpMethod.POST, "/api/users/")
+            .antMatchers(HttpMethod.POST, "/api/files/")
+            .antMatchers(HttpMethod.GET, "/api/files/");
     }
 }
